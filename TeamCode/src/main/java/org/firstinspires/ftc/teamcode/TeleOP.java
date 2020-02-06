@@ -33,6 +33,8 @@ public class TeleOP extends LinearOpMode {
     private DcMotor leftRear = null;
     private DcMotor rightRear = null;
     private Servo armServo = null;
+    private Servo foundL = null;
+    private Servo foundR = null;
     private DcMotor armMotor = null;
     private DcMotor yeeter = null;
     private Servo capstone = null;
@@ -61,6 +63,8 @@ public class TeleOP extends LinearOpMode {
         armMotor.setZeroPowerBehavior((DcMotor.ZeroPowerBehavior.BRAKE));
         armServo = hardwareMap.get(Servo.class, "servo_arm");
         capstone = hardwareMap.get(Servo.class, "cap");
+        foundL = hardwareMap.get(Servo.class, "fl");
+        foundR = hardwareMap.get(Servo.class, "fr");
         armMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         boolean armM = false;
         boolean buttonPrev = false;
@@ -87,17 +91,25 @@ public class TeleOP extends LinearOpMode {
 
         while (opModeIsActive()) {
 
-            if (gamepad2.left_bumper)
+            if (gamepad1.left_bumper)
             {
 
                 capstone.setPosition(0);
 
             }
-            if (gamepad2.right_bumper)
+            if (gamepad1.right_bumper)
             {
 
                 capstone.setPosition(.3);
 
+            }
+            if(gamepad1.left_bumper)
+            {
+                foundationDown();
+            }
+            if(gamepad2.right_bumper)
+            {
+                foundationUP();
             }
             if(gamepad1.right_trigger!=0){
                 yeeter.setPower(-gamepad1.right_trigger);
@@ -140,7 +152,7 @@ public class TeleOP extends LinearOpMode {
 
             double r = Math.hypot(-gamepad1.left_stick_x, gamepad1.left_stick_y);
             double robotAngle = Math.atan2(gamepad1.left_stick_y, -gamepad1.left_stick_x) - Math.PI / 4;
-            double rightX = -gamepad1.right_stick_x;
+            double rightX = (-gamepad1.right_stick_x)*.7;
             final double v1 = r * Math.cos(robotAngle) + rightX;
             final double v2 = r * Math.sin(robotAngle) - rightX;
             final double v3 = r * Math.sin(robotAngle) + rightX;
@@ -156,5 +168,15 @@ public class TeleOP extends LinearOpMode {
             telemetry.update();
 
         }
+    }
+    public  void foundationUP()
+    {
+        foundL.setPosition(0);
+        foundR.setPosition(0);
+    }
+    public  void foundationDown()
+    {
+        foundL.setPosition(1);
+        foundR.setPosition(1);
     }
 }

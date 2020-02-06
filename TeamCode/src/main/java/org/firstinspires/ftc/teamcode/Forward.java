@@ -95,7 +95,7 @@ public class Forward extends LinearOpMode {
         int[] pos = {currLiftPos, 400, 1100, 1800, 2500, 3200, 3800, 1499, 1699};
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
-            encoderSlow(1000,1000,1000,1000, .5, 5, 800);
+            encoderSlow(1000,1000,1000,1000, .5, 5, 600);
             sleep(60000);
         }
     }
@@ -226,7 +226,7 @@ public class Forward extends LinearOpMode {
     }
 
     public void encoderSlow (int lf, int rf, int lr, int rr, double pow, int sec, int tick) {
-        pow = pow + .1;
+
         rightFront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         leftRear.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rightRear.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -257,11 +257,11 @@ public class Forward extends LinearOpMode {
         while ((rightRear.isBusy() || leftRear.isBusy() || rightFront.isBusy() || leftFront.isBusy()) && opModeIsActive() && runTime.seconds() < sec) {
             if(rightRear.getCurrentPosition()>tick)
             {
-                leftFront.setPower(.1);
-                rightFront.setPower(.1);
-                rightRear.setPower(.1);
-                leftRear.setPower(.1);
-                leftFront.setPower(.1);
+                leftFront.setPower(.2);
+                rightFront.setPower(.2);
+                rightRear.setPower(.2);
+                leftRear.setPower(.2);
+                leftFront.setPower(.2);
             }
 
         }

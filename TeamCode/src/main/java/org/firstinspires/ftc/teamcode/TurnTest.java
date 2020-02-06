@@ -99,15 +99,15 @@ public class TurnTest extends LinearOpMode {
             double currAngle = (angle.firstAngle+360) % 360;
             telemetry.addData("angle",currAngle);
             telemetry.update();
-            sleep(5000);
-            turnPID(90.0,.7);
+            //sleep(5000);
+            // turnPID(90.0,.5);
             telemetry.addData("angle", getHeading());
             telemetry.update();
-            sleep((5000));
-            turn_to_heading(180, -25);
+            sleep(2000);
+            turn_to_heading(89.5, -25);
             telemetry.addData("angle", getHeading());
             telemetry.update();
-            sleep(5000);
+            sleep(30000);
             newTurn(270, .8, false, 500);
             telemetry.addData("angle", getHeading());
             telemetry.update();
@@ -130,7 +130,7 @@ public class TurnTest extends LinearOpMode {
 
             Double k = pow / (heading);
             Double angle = Math.abs(heading - getHeading());
-            Double power = (angle * k) + .1;
+            Double power = (angle * k) + .05;
             while(getHeading() < heading + .5 && getHeading() > heading - .5) {
                 while (getHeading() > heading + .5) {
                     leftRear.setPower(power);
@@ -138,7 +138,7 @@ public class TurnTest extends LinearOpMode {
                     rightRear.setPower(-power);
                     rightFront.setPower(-power);
                     angle = Math.abs((heading) - getHeading());
-                    power = (angle * k) + .1;
+                    power = (angle * k) + .05;
                 }
                 while (getHeading() < heading - .5) {
                     leftRear.setPower(-power);
@@ -147,7 +147,7 @@ public class TurnTest extends LinearOpMode {
                     rightFront.setPower(power);
                     angle = Math.abs((heading) - getHeading());
 
-                    power = (angle * k) + .1;
+                    power = (angle * k) + .05;
                 }
             }
             telemetry.addData("angle", getHeading());
@@ -221,7 +221,7 @@ public class TurnTest extends LinearOpMode {
 
         timeoutTimer.reset();
         prevHeading = currentHeading;
-        while (degreesToTurn > .5 && opModeIsActive() && timeoutTimer.seconds() < 2) {  // 11/21 changed from .5 to .3
+        while (degreesToTurn > .5 && opModeIsActive() && timeoutTimer.seconds() < 3) {  // 11/21 changed from .5 to .3
 
             if (speedModifier < 0) {
                 wheelPower = (Math.pow((degreesToTurn + 25) / -speedModifier, 3) + 15) / 100;
@@ -237,10 +237,10 @@ public class TurnTest extends LinearOpMode {
                 wheelPower = -wheelPower;
             }
 
-            leftFront.setPower(-wheelPower);
+            leftFront.setPower(wheelPower);
             leftRear.setPower(wheelPower);
             rightRear.setPower(-wheelPower);
-            rightFront.setPower(wheelPower);
+            rightFront.setPower(-wheelPower);
 
             currentHeading = getHeading();
 
@@ -259,6 +259,11 @@ public class TurnTest extends LinearOpMode {
             }
 
         }
+        leftFront.setPower(0);
+        leftRear.setPower(0);
+        rightRear.setPower(0);
+        rightFront.setPower(0);
+
 
     }
     public void encoder (int lf, int rf, int lr, int rr, double pow, int sec )

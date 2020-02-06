@@ -51,6 +51,8 @@ public class RedAutoState extends LinearOpMode {
     private DcMotor armMotor = null;
     private Servo armServo = null;
 
+    private Servo foundL = null;
+    private Servo foundR = null;
     //0 means skystone, 1 means yellow stone
     //-1 for debug, but we can keep it like this because if it works, it should change to either 0 or 255
     private static int valMid = -1;
@@ -142,38 +144,44 @@ public class RedAutoState extends LinearOpMode {
                 telemetry.addData("pos", "center");
                 telemetry.update();
 
-                encoderSlow(1490, 1160, 1160, 1460, .8, 7, 1200);
+                encoder(1490, 1160, 1160, 1460, .8, 7);
                 armServo.setPosition(.8);
                 sleep (300);
                 encoder(-200, -200, -200, -200, .7, 5);
-                //turn
-                encoder(3000, 3000, 3000, 3000, .8, 10);
-                //turn to foundation
+                turn_to_heading(270, -25);
+                checkAngle(270, .08);
+                encoder(3300, 3300, 3300, 3300, .8, 10);
+                turn_to_heading(0, -25);
                 armLift(200, .5); //lifts arm
-                encoder(300,300,300,300,.5,5);
+                encoder(400,400,400,400,.5,5);
                 armServo.setPosition(.5); //drops 1st stone
-                sleep(400);
-                encoder(-300,-300,-300,-300,.5,5);
+                sleep(300);
+                encoder(-500,-500,-500,-500,.5,5);
+                turn_to_heading(270, -25);
                 armLift(currLiftPos, .5);
-                //foward
-                encoder(3500, -3500, 3500, 3500, .5, 7);
-                //turn
-                encoder(200,200,200,200,.1,5);
+                checkAngle(270, .08);
+                encoder(-3300, -3300, -3300, -3300, .8, 10);
+                turn_to_heading(0, -25);
+                checkAngle(0, .08);
+                encoder(300,300,300,300,.1,5);
                 armServo.setPosition(.8);
                 sleep(400);
                 encoder(-200, -200, -200, -200, .7, 5);
-                //turn
-                encoder(3300, 3300, 3300, 3300, .8, 7);
-                //turn to foundation
-                armLift(200, .5); //lifts arm
-                encoder(300,300,300,300,.3,5);
-                //hook foundation
+                turn_to_heading(270, -25);
+                checkAngle(270, .08);
+                encoder(4300, 4300, 4300, 4300, .8, 7);
+                turn_to_heading(0, -25);
+                checkAngle(0, .08);
+                armLift(200, .5);
+                encoder(400,400,400,400,.3,5);
+                foundationDown();
                 armServo.setPosition(.5); //drops 1st stone
                 sleep(400);
-                encoder(-1400, -1400, -1400, -1400, .8, 5);
+                encoder(-1400, -1400, -1400, -1400, .3, 5);
 
                 encoder(-600,600,600,-600,.8, 5);
-                //turn
+                turn_to_heading(90, -25);
+                checkAngle(90, .08);
                 yeeter.setPower(1);
                 sleep(500);
                 yeeter.setPower(0);
@@ -194,10 +202,9 @@ public class RedAutoState extends LinearOpMode {
                 encoderSlow(1790, 790, 790, 1790, .8, 5, 1500);
                 armServo.setPosition(.8);
                 sleep(1000);
-                encoder(-520, -520, -520, -520, .3, 5);
+                encoder(-220, -220, -220, -520, .3, 5);
+                //turn (270, .8);
                 encoder(2000, -2000, -2000, 2000, .8 , 3);
-
-
                 armServo.setPosition(.5);
                 sleep(400);
                 encoder(-2700, 2700, 2700, -2700, .4, 7);
@@ -427,6 +434,10 @@ public class RedAutoState extends LinearOpMode {
               rightRear.setPower(.1);
               leftRear.setPower(.1);
               leftFront.setPower(.1);
+              leftFront.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+              rightFront.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+              leftRear.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+              rightRear.setMode((DcMotor.RunMode.RUN_TO_POSITION));
           }
 
         }
@@ -468,8 +479,8 @@ public class RedAutoState extends LinearOpMode {
         Orientation angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
         return (angles.firstAngle + 360) % 360;
     }
-    public void checkAngle(int firstA, int secA) {
-        if (firstA-3 > (((imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES)).firstAngle + 360) % 360))
+    public void checkAngle(int firstA, Double power) {
+        if (firstA-.5 > (((imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES)).firstAngle + 360) % 360))
         {
         leftFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         rightFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -480,11 +491,11 @@ public class RedAutoState extends LinearOpMode {
         currAngle = (angle.firstAngle + 360) % 360;
         telemetry.addData("currAngle", currAngle);
         telemetry.update();
-        while ((currAngle < firstA || currAngle > secA) && opModeIsActive()) {
-            leftFront.setPower(-.2);
-            leftRear.setPower(-.2);
-            rightRear.setPower(.2);
-            rightFront.setPower(.2);
+        while (currAngle < firstA-.5 && opModeIsActive()) {
+            leftFront.setPower(-power);
+            leftRear.setPower(-power);
+            rightRear.setPower(power);
+            rightFront.setPower(power);
             angle = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
             currAngle = (angle.firstAngle + 360) % 360;
             telemetry.addData("currAngle", currAngle);
@@ -495,7 +506,7 @@ public class RedAutoState extends LinearOpMode {
         rightRear.setPower(0);
         rightFront.setPower(0);
         }
-        else if (secA+3 < (((imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES)).firstAngle + 360) % 360))
+        else if (firstA +.5 < (((imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES)).firstAngle + 360) % 360))
         {
             leftFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             rightFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -506,11 +517,11 @@ public class RedAutoState extends LinearOpMode {
             currAngle = (angle.firstAngle + 360) % 360;
             telemetry.addData("currAngle", currAngle);
             telemetry.update();
-            while ((currAngle < firstA || currAngle > secA) && opModeIsActive()) {
-                leftFront.setPower(.2);
-                leftRear.setPower(.2);
-                rightRear.setPower(-.2);
-                rightFront.setPower(-.2);
+            while (currAngle > firstA + .5 && opModeIsActive()) {
+                leftFront.setPower(power);
+                leftRear.setPower(power);
+                rightRear.setPower(-power);
+                rightFront.setPower(-power);
                 angle = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
                 currAngle = (angle.firstAngle + 360) % 360;
                 telemetry.addData("currAngle", currAngle);
@@ -535,4 +546,79 @@ public class RedAutoState extends LinearOpMode {
         armMotor.setPower(0);
     }
 
+    public void turn_to_heading(double target_heading, double speedModifier) {
+        boolean goRight;
+        double currentHeading;
+        double degreesToTurn;
+        double wheelPower;
+        double prevHeading = 0;
+        ElapsedTime timeoutTimer = new ElapsedTime();
+
+        currentHeading = getHeading();
+        degreesToTurn = Math.abs(target_heading - currentHeading);
+
+        goRight = target_heading > currentHeading;
+
+        if (degreesToTurn > 180) {
+            goRight = !goRight;
+            degreesToTurn = 360 - degreesToTurn;
+        }
+
+        timeoutTimer.reset();
+        prevHeading = currentHeading;
+        while (degreesToTurn > .5 && opModeIsActive() && timeoutTimer.seconds() < 3) {  // 11/21 changed from .5 to .3
+
+            if (speedModifier < 0) {
+                wheelPower = (Math.pow((degreesToTurn + 25) / -speedModifier, 3) + 15) / 100;
+            } else {
+                if (speedModifier != 0) {
+                    wheelPower = (Math.pow((degreesToTurn) / speedModifier, 4) + 35) / 100;
+                } else {
+                    wheelPower = (Math.pow((degreesToTurn) / 30, 4) + 15) / 100;
+                }
+            }
+
+            if (goRight) {
+                wheelPower = -wheelPower;
+            }
+
+            leftFront.setPower(wheelPower);
+            leftRear.setPower(wheelPower);
+            rightRear.setPower(-wheelPower);
+            rightFront.setPower(-wheelPower);
+
+            currentHeading = getHeading();
+
+            degreesToTurn = Math.abs(target_heading - currentHeading);       // Calculate how far is remaining to turn
+
+            goRight = target_heading > currentHeading;
+
+            if (degreesToTurn > 180) {
+                goRight = !goRight;
+                degreesToTurn = 360 - degreesToTurn;
+            }
+
+            if (Math.abs(currentHeading - prevHeading) > 1) {  // if it has turned at least one degree
+                timeoutTimer.reset();
+                prevHeading = currentHeading;
+            }
+
+        }
+        leftFront.setPower(0);
+        leftRear.setPower(0);
+        rightRear.setPower(0);
+        rightFront.setPower(0);
+
+
+    }
+    public  void foundationUP()
+    {
+        foundL.setPosition(0);
+        foundR.setPosition(0);
+    }
+    public  void foundationDown()
+    {
+        foundL.setPosition(1);
+        foundR.setPosition(1);
+    }
 }

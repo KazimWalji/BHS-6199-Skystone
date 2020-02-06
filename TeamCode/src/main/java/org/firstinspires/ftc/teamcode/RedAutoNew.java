@@ -50,6 +50,8 @@ public class RedAutoNew extends LinearOpMode {
     private ElapsedTime runTime = new ElapsedTime();
     private DcMotor armMotor = null;
     private Servo armServo = null;
+    private Servo foundL = null;
+    private Servo foundR = null;
 
     //0 means skystone, 1 means yellow stone
     //-1 for debug, but we can keep it like this because if it works, it should change to either 0 or 255
@@ -474,5 +476,14 @@ public class RedAutoNew extends LinearOpMode {
         }
 
     }
-
+    public  void foundationUP()
+    {
+        foundL.setPosition(0);
+        foundR.setPosition(0);
+    }
+    public  void foundationDown()
+    {
+        foundL.setPosition(1);
+        foundR.setPosition(1);
+    }
 }
